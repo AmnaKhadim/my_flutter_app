@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'cart_manager.dart';   // ✅ import CartManager
+import 'cart_manager.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -13,202 +13,214 @@ class CartScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         centerTitle: true,
         title: const Text(
-          "🛒 My Cart",
+          "My Cart",
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
-            fontSize: 20, // 🔹 Thoda chhota
+            fontSize: 22,
           ),
         ),
+        actions: [
+          // Cart badge (optional)
+          ValueListenableBuilder<List<Map<String, dynamic>>>(
+            valueListenable: CartManager.cartItems,
+            builder: (context, items, _) {
+              int count = CartManager.itemCount;
+              if (count == 0) return const SizedBox();
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Chip(
+                    backgroundColor: Colors.orange,
+                    label: Text(
+                      "$count",
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: ValueListenableBuilder<List<Map<String, dynamic>>>(
         valueListenable: CartManager.cartItems,
         builder: (context, items, _) {
           if (items.isEmpty) {
-            return const Center(
-              child: Text(
-                "Your cart is empty 🛍️",
-                style: TextStyle(fontSize: 16, color: Colors.black54),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Your cart is empty",
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                ],
               ),
             );
           }
 
           return Column(
             children: [
-              /// 🔹 Cart List
+              // Cart Items List
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.all(12),
                   itemCount: items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final item = items[index];
-                    return Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          )
-                        ],
+                    final double itemTotal = (item['totalPrice'] as double) * (item['quantity'] as int);
+
+                    return Dismissible(
+                      key: Key(item['id'] ?? index.toString()),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.delete, color: Colors.white),
                       ),
-                      child: Row(
-                        children: [
-                          /// Product Image (small size)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              item['image'],
-                              width: 50, // 🔹 Normal fixed size
-                              height: 50,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-
-                          /// Title + Price
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item['title'],
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15, // 🔹 Normal
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  "Rs. ${item['price']}",
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          /// Quantity Controls
-                          Row(
+                      onDismissed: (_) => CartManager.removeItem(index),
+                      child: Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
                             children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.remove_circle_outline,
-                                  color: Colors.redAccent,
-                                  size: 22, // 🔹 Smaller icon
-                                ),
-                                onPressed: () {
-                                  CartManager.decreaseItem(item);
-                                },
-                              ),
-                              Text(
-                                "${item['quantity']}",
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.asset(
+                                  item['image'],
+                                  width: 70,
+                                  height: 70,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.add_circle_outline,
-                                  color: Colors.green,
-                                  size: 22, // 🔹 Smaller icon
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item['title'],
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Cheese ${item['cheese']}x • Olives ${item['olives']}x • Spices ${item['spices']}x",
+                                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      "PKR ${item['totalPrice'].toStringAsFixed(0)} each",
+                                      style: const TextStyle(fontSize: 13, color: Colors.orange),
+                                    ),
+                                  ],
                                 ),
-                                onPressed: () {
-                                  CartManager.addItem({
-                                    "title": item["title"],
-                                    "price": item["price"],
-                                    "image": item["image"],
-                                  });
-                                },
+                              ),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove_circle, color: Colors.redAccent, size: 26),
+                                        onPressed: () => CartManager.decreaseQuantity(index),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange.shade50,
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          "${item['quantity']}",
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.add_circle, color: Colors.green, size: 26),
+                                        onPressed: () {
+                                          // Same item dobara add karo (same customization ke saath)
+                                          CartManager.addItem({
+                                            "id": DateTime.now().millisecondsSinceEpoch.toString(),
+                                            "title": item['title'],
+                                            "image": item['image'],
+                                            "basePrice": item['basePrice'],
+                                            "cheese": item['cheese'],
+                                            "olives": item['olives'],
+                                            "spices": item['spices'],
+                                            "totalPrice": item['totalPrice'],
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    "PKR ${itemTotal.toStringAsFixed(0)}",
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                  ),
+                                ],
                               ),
                             ],
-                          )
-                        ],
+                          ),
+                        ),
                       ),
                     );
                   },
                 ),
               ),
 
-              /// 🔹 Total + Checkout Button
+              // Bottom Total & Checkout
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: const Offset(0, -2),
-                    )
-                  ],
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
                 ),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "Total:",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        const Text("Grand Total", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                         Text(
-                          "Rs. ${CartManager.getTotal()}",
+                          "PKR ${CartManager.totalAmount.toStringAsFixed(0)}",
                           style: const TextStyle(
-                            fontSize: 17,
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.green,
+                            color: Colors.orange,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Proceeding to checkout 🚀"),
-                            ),
+                            const SnackBar(content: Text("Checkout coming soon!"), backgroundColor: Colors.green),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          backgroundColor: Colors.orange,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text(
-                          "Proceed to Checkout",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: const Text("Proceed to Checkout", style: TextStyle(fontSize: 18, color: Colors.white)),
                       ),
-                    )
+                    ),
                   ],
                 ),
-              )
+              ),
             ],
           );
         },

@@ -26,25 +26,7 @@ class BranchesScreen extends StatelessWidget {
         "Saturday - Sunday": "11:00am - 11:00pm",
       },
     ),
-    Branch(
-      name: "Karachi",
-      location: "📍 Clifton Block 5, Karachi",
-      services: ["Dine In", "Delivery"],
-      timetable: {
-        "Monday - Thrusday": "12:00pm - 12:00am",
-        "Friday": "3:00pm - 1:00am",
-        "Saturday - Sunday": "12:00pm - 12:00am",
-      },
-    ),
-    Branch(
-      name: "Islamabad",
-      location: "📍 F-7 Markaz, Islamabad",
-      services: ["Dine In", "Delivery", "Pickup"],
-      timetable: {
-        "Monday - Friday": "10:00am - 11:00pm",
-        "Saturday - Sunday": "11:00am - 12:00am",
-      },
-    ),
+
     Branch(
       name: "Sahiwal",
       location: "📍 High Street, Sahiwal",
@@ -53,16 +35,7 @@ class BranchesScreen extends StatelessWidget {
         "Monday - Sunday": "11:00am - 11:00pm",
       },
     ),
-    Branch(
-      name: "Dolmen Mall",
-      location: "📍 Dolmen Mall Clifton, Karachi",
-      services: ["Dine In", "Delivery", "Pickup"],
-      timetable: {
-        "Mon - Thu": "11:00am - 10:00pm",
-        "Fri": "2:00pm - 11:00pm",
-        "Sat - Sun": "12:00pm - 12:00am",
-      },
-    ),
+
     Branch(
       name: "Emporium Mall",
       location: "📍 Johar Town, Lahore",
@@ -80,24 +53,8 @@ class BranchesScreen extends StatelessWidget {
         "Mon - Sun": "12:00pm - 11:00pm",
       },
     ),
-    Branch(
-      name: "Faisal Town",
-      location: "📍 Faisal Town, Lahore",
-      services: ["Dine In", "Delivery"],
-      timetable: {
-        "Mon - Thu": "11:30am - 11:00pm",
-        "Fri": "2:00pm - 12:00am",
-        "Sat - Sun": "12:00pm - 12:00am",
-      },
-    ),
-    Branch(
-      name: "G3 Lahore",
-      location: "📍 G3 Block, Garden Town, Lahore",
-      services: ["Dine In", "Pickup"],
-      timetable: {
-        "Mon - Sun": "11:00am - 11:00pm",
-      },
-    ),
+
+
     Branch(
       name: "Allama Iqbal Town",
       location: "📍 Allama Iqbal Town, Lahore",

@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fyp/menu.dart';
 import 'package:fyp/saved_address.dart';
-import 'favorites.dart';
 import 'viewprofile.dart';
 import 'ratings.dart';
-import 'orderhistory.dart';
 import 'logout.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -56,11 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('View Profile'),
             onTap: () => navigateTo(context, const ViewProfileScreen()),
           ),
-          ListTile(
-            leading: const Icon(Icons.favorite),
-            title: const Text('Favorites'),
-            onTap: () => navigateTo(context, const Favorites()),
-          ),
+
           ListTile(
             leading: const Icon(Icons.restaurant_menu),
             title: const Text('Explore Menu'),
@@ -72,14 +66,29 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () => navigateTo(context, const SavedAddress()),
           ),
           ListTile(
-            leading: const Icon(Icons.star_rate),
+            leading: const Icon(Icons.star_rate, color: Colors.amber),
             title: const Text('Ratings'),
-            onTap: () => navigateTo(context, const Ratings()),
-          ),
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: const Text('Order History'),
-            onTap: () => navigateTo(context, const OrderHistory()),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RatingScreen(
+                    orderItem: {
+                      "title": "Your Food Name",           // ← yahan apna item daal do
+                      "image": "assets/images/pizza.jpg",  // ← apni image path daal do
+                      "totalPrice": 950.0,                 // ← jo price tha
+                      "cheese": 2.0,
+                      "olives": 1.0,
+                      "spices": 1.5,
+                    },
+                    onSubmit: (rating, feedback) {
+                      // Bas yahan print ya save kar do
+                      print("Rating: $rating | Feedback: $feedback");
+                    },
+                  ),
+                ),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.logout),

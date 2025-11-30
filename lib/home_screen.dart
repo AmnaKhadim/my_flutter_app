@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'SidesDetailScreen.dart';
+import 'adonsDetailScreen.dart';
+import 'bitedDetailScreen.dart';
+import 'customized_item.dart';
+import 'drinks_screen.dart';
+import 'pizzaDetailScreen.dart';
+import 'burgerdetailScreen.dart';
 import 'dart:ui';
 import 'branches.dart';
 import 'signuplogin.dart';
 import 'viewprofile.dart';
-import 'favorites.dart';
 import 'saved_address.dart';
 import 'ratings.dart';
-import 'orderhistory.dart';
 import 'searchitems.dart';
 import 'addtocart1.dart';
 import 'cart_manager.dart';
-import 'itemdetails.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Map<String, String>> menuItems = [
     {
-      'title': 'Soft Drinks',
+      'title': 'Drinks',
       'image': 'assets/images/drinks.jpg',
       'price': '50',
       'category': 'Drinks'
@@ -49,10 +53,10 @@ class _HomeScreenState extends State<HomeScreen> {
       'category': 'Pizza'
     },
     {
-      'title': 'Special Pizza',
-      'image': 'assets/images/crowncrust.jpg',
+      'title': 'Burgers',
+      'image': 'assets/images/burger.jpg',
       'price': '700',
-      'category': 'Pizza'
+      'category': 'Burger'
     },
     {
       'title': 'Side Orders',
@@ -62,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'title': 'Addons',
-      'image': 'assets/images/dipsauce.jpg',
+      'image': 'assets/images/peri_mayo.png',
       'price': '30',
       'category': 'Extras'
     },
@@ -79,8 +83,14 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            decoration: const BoxDecoration(color: Colors.orange),
-            accountName: Text(name),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.orange, Colors.deepOrangeAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            accountName: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
             accountEmail: Text(phone),
             currentAccountPicture: const CircleAvatar(
               backgroundColor: Colors.white,
@@ -93,25 +103,42 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () => navigateTo(context, const ViewProfileScreen()),
           ),
           ListTile(
-            leading: const Icon(Icons.favorite),
-            title: const Text('Favorites'),
-            onTap: () => navigateTo(context, const Favorites()),
+            leading: const Icon(Icons.person),
+            title: const Text('Customized Items'),
+            onTap: () => navigateTo(context, const CustomizeFoodScreen()),
           ),
+
           ListTile(
             leading: const Icon(Icons.location_on),
             title: const Text('Saved Address'),
             onTap: () => navigateTo(context, const SavedAddress()),
           ),
           ListTile(
-            leading: const Icon(Icons.star_rate),
+            leading: const Icon(Icons.star_rate, color: Colors.amber),
             title: const Text('Ratings'),
-            onTap: () => navigateTo(context, const Ratings()),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RatingScreen(
+                    orderItem: {
+                      "title": "Your Food Name",           // ← yahan apna item daal do
+                      "image": "assets/images/pizza.jpg",  // ← apni image path daal do
+                      "totalPrice": 950.0,                 // ← jo price tha
+                      "cheese": 2.0,
+                      "olives": 1.0,
+                      "spices": 1.5,
+                    },
+                    onSubmit: (rating, feedback) {
+                      // Bas yahan print ya save kar do
+                      print("Rating: $rating | Feedback: $feedback");
+                    },
+                  ),
+                ),
+              );
+            },
           ),
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: const Text('Order History'),
-            onTap: () => navigateTo(context, const OrderHistory()),
-          ),
+
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
@@ -175,6 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Dashboard"),
+        backgroundColor: Colors.orangeAccent,
         actions: [
           ValueListenableBuilder<List<Map<String, dynamic>>>(
             valueListenable: CartManager.cartItems,
@@ -205,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           "${cart.length}",
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 11, // ✅ Normal neat size
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -218,17 +246,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: buildDrawer("Amna", "0300-1234567"),
-
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 🔹 Carousel Slider (90% height)
+            // --- Carousel / Banners ---
             CarouselSlider(
               options: CarouselOptions(
-                height: screenHeight * 0.90,
+                height: screenHeight * 0.9, // Full banner visible
+                viewportFraction: 1.0,
                 autoPlay: true,
                 enlargeCenterPage: true,
-                viewportFraction: 1,
                 onPageChanged: (index, reason) {
                   setState(() {
                     _currentIndex = index;
@@ -240,10 +267,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (BuildContext context) {
                     return Container(
                       width: screenWidth,
-                      color: Colors.black12,
-                      child: Image.asset(
-                        imagePath,
-                        fit: BoxFit.cover,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(0),
+                        image: DecorationImage(
+                          image: AssetImage(imagePath),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.black.withOpacity(0.1),
+                              Colors.black.withOpacity(0.1)
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -251,9 +292,9 @@ class _HomeScreenState extends State<HomeScreen> {
               }).toList(),
             ),
 
-            SizedBox(height: screenHeight * 0.025),
+            SizedBox(height: screenHeight * 0.02),
 
-            // 🔹 Explore Menu Heading
+            // --- Explore Menu Section ---
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
               child: Column(
@@ -261,76 +302,123 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     "Explore Menu",
-                    textAlign: TextAlign.start,
                     style: TextStyle(
-                      fontSize: screenWidth * 0.030, // normal attractive size
-                      fontWeight: FontWeight.w500,
+                      fontSize: screenWidth * 0.032,
+                      fontWeight: FontWeight.bold,
                       color: Colors.black87,
-                      letterSpacing: 1.2,
+                      letterSpacing: 1.1,
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.01),
                   Container(
-                    height: 2,
-                    width: 50,
-                    color: Colors.orange,
+                    height: 3,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ],
               ),
             ),
 
-            SizedBox(height: screenHeight * 0.01),
+            SizedBox(height: screenHeight * 0.02),
 
-            // 🔹 Menu Items Grid (smaller cards)
+            // --- Menu Items Grid ---
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
               itemCount: menuItems.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // 3 per row
-                childAspectRatio: 0.68, // smaller card height
+                crossAxisCount: 3,
+                childAspectRatio: 0.68,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 12,
               ),
               itemBuilder: (context, index) {
+                final selectedItem = menuItems[index];
                 return GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetailScreen(item: menuItems[index]),
-                      ),
-                    );
+                    if (selectedItem['category'] == 'Drinks') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              DrinksMenuScreen(item: selectedItem),
+                        ),
+                      );
+                    } else if (selectedItem['category'] == 'Pizza') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              PizzaDetailScreen(item: selectedItem),
+                        ),
+                      );
+                    } else if (selectedItem['category'] == 'Burger') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              BurgersDetailScreen(item: selectedItem),
+                        ),
+                      );
+                    } else if (selectedItem['category'] == 'Bites') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              BitesDetailScreen(item: selectedItem),
+                        ),
+                      );
+                    } else if (selectedItem['category'] == 'Sides') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              SidesDetailScreen(item: selectedItem),
+                        ),
+                      );
+                    } else if (selectedItem['category'] == 'Extras') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              ExtrasDetailScreen(item: selectedItem),
+                        ),
+                      );
+                    }
                   },
                   child: Card(
-                    margin: EdgeInsets.all(screenWidth * 0.010),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 3,
+                    shadowColor: Colors.black12,
                     child: Column(
                       children: [
                         Expanded(
-                          flex: 3, // card size
+                          flex: 3,
                           child: ClipRRect(
                             borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(10),
-                            ),
+                                top: Radius.circular(12)),
                             child: Image.asset(
-                              menuItems[index]['image']!,
+                              selectedItem['image']!,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         Expanded(
-                          flex: 1, // image size in card
+                          flex: 1,
                           child: Center(
                             child: Text(
-                              menuItems[index]['title']!,
+                              selectedItem['title']!,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize:
-                                screenWidth * 0.020, // small neat text
-                              ),
+                                  fontSize: screenWidth * 0.022,
+                                  fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
@@ -340,20 +428,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
 
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: _currentIndex,
         selectedItemColor: Colors.orange,
+        unselectedItemColor: Colors.grey,
         onTap: (index) {
-          if (index == 0) {
-          } else if (index == 1) {
+          setState(() {
+            _currentIndex = index;
+          });
+          if (index == 1) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => SearchScreen(menuItems: menuItems),
+                builder: (_) => SearchScreen(allItems: menuItems),
               ),
             );
           } else if (index == 2) {

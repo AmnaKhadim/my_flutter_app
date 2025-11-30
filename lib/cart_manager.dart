@@ -1,59 +1,71 @@
 import 'package:flutter/material.dart';
 
 class CartManager {
-  /// Global cart items with quantity
+  /// Global cart with ValueNotifier for real-time UI update
   static ValueNotifier<List<Map<String, dynamic>>> cartItems =
   ValueNotifier<List<Map<String, dynamic>>>([]);
 
-  /// Add item (if exists, increase quantity)
-  static void addItem(Map<String, String> item) {
-    List<Map<String, dynamic>> current = cartItems.value;
-    int index = current.indexWhere((i) => i['title'] == item['title']);
-    if (index != -1) {
-      current[index]['quantity'] += 1;
+  /// Add item with full customization
+  static void addItem(Map<String, dynamic> newItem) {
+    List<Map<String, dynamic>> current = List.from(cartItems.value);
+
+    // Same customization wala item dhundho
+    int existingIndex = current.indexWhere((item) {
+      return item['title'] == newItem['title'] &&
+          item['cheese'] == newItem['cheese'] &&
+          item['olives'] == newItem['olives'] &&
+          item['spices'] == newItem['spices'];
+    });
+
+    if (existingIndex != -1) {
+      // Same customization hai → quantity badhao
+      current[existingIndex]['quantity'] += 1;
     } else {
+      // Naya customized item → add karo with quantity 1
       current.add({
-        'title': item['title'],
-        'price': item['price'],
-        'image': item['image'],
+        ...newItem,
         'quantity': 1,
       });
     }
-    cartItems.value = List.from(current); // update ValueNotifier
+
+    cartItems.value = List.from(current); // trigger UI update
   }
 
-  /// Remove item completely
-  static void removeItemAt(int index) {
-    final current = List<Map<String, dynamic>>.from(cartItems.value);
-    current.removeAt(index);
-    cartItems.value = current;
-  }
+  /// Decrease quantity or remove if 0
+  static void decreaseQuantity(int index) {
+    List<Map<String, dynamic>> current = List.from(cartItems.value);
 
-  /// Decrease quantity by 1
-  static void decreaseItem(Map<String, dynamic> item) {
-    List<Map<String, dynamic>> current = cartItems.value;
-    int index = current.indexWhere((i) => i['title'] == item['title']);
-    if (index != -1) {
-      if (current[index]['quantity'] > 1) {
-        current[index]['quantity'] -= 1;
-      } else {
-        current.removeAt(index);
-      }
+    if (current[index]['quantity'] > 1) {
+      current[index]['quantity'] -= 1;
+    } else {
+      current.removeAt(index);
     }
+
     cartItems.value = List.from(current);
   }
 
-  /// Clear all items
+  /// Remove item completely
+  static void removeItem(int index) {
+    List<Map<String, dynamic>> current = List.from(cartItems.value);
+    current.removeAt(index);
+    cartItems.value = List.from(current);
+  }
+
+  /// Clear cart
   static void clearCart() {
     cartItems.value = [];
   }
 
-  /// Calculate total price (price * quantity)
-  static int getTotal() {
-    return cartItems.value.fold<int>(
-      0,
-          (sum, item) => sum +
-          (int.parse(item['price'].toString()) * (item['quantity'] as int)),
+  /// Get total amount
+  static double get totalAmount {
+    return cartItems.value.fold(
+      0.0,
+          (sum, item) => sum + (item['totalPrice'] as double) * (item['quantity'] as int),
     );
+  }
+
+  /// Get total items count (for cart badge)
+  static int get itemCount {
+    return cartItems.value.fold(0, (sum, item) => sum + (item['quantity'] as int));
   }
 }
